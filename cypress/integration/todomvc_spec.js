@@ -5,9 +5,8 @@ context('TodoMVC', () => {
     cy.visit('http://localhost:3000/');
   });
 
-  context('', () => {
-    it('', () => {
-      
-    });
-  })
+  it('tests something', () => {
+
+  });
+
 })
