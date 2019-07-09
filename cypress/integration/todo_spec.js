@@ -3,34 +3,104 @@ import MainPage from "./pageObjects/todo_page";
 
 const page = new MainPage();
 
+const ITEM_ONE = "first todo";
+const ITEM_TWO = "second todo";
+const ITEM_THREE = "third todo";
+
 describe("TodoMVC", () => {
   beforeEach(() => {
-    cy.visit("http://localhost:3000/");
+    cy.visit("/");
   });
-  it("page should be set to inital state", () => {
-    cy.get(page.pageTitle).should("have.text", "todos");
-    cy.get(page.addNewItemInput).should("be.visible");
-    cy.focused().should("have.attr", "placeholder", "What needs to be done?");
-    cy.get(page.itemsList).should("not.exist");
-    cy.get(page.footer).should("not.exist");
+  context("Initial state", () => {
+    it("page is set to inital state", () => {
+      cy.get(page.pageTitle).should("have.text", "todos");
+      cy.get(page.addNewItemInput).should("be.visible");
+      cy.focused().should("have.attr", "placeholder", "What needs to be done?");
+      cy.get(page.itemsList).should("not.exist");
+      cy.get(page.footer).should("not.exist");
+    });
   });
+  context("Adding items", () => {
+    it("item is added with action elements and footer exists", () => {
+      page.addItem(ITEM_ONE);
 
-  it("should add item to the list", () => {
-    cy.get(page.addNewItemInput).type("first todo{enter}");
-    cy.get(page.itemsList).should("have.length", 1);
-    cy.get(page.itemCheckbox).should("not.be.selected");
-    cy.get(page.itemLabel).should("have.text", "first todo");
-    cy.get(page.itemDeleteBtn).should("not.be.visible");
-  });
+      cy.get(page.itemsList).should("have.length", 1);
+      cy.get(page.itemCheckbox).should("not.be.selected");
+      cy.get(page.itemLabel).should("have.text", ITEM_ONE);
+      cy.get(page.itemDeleteBtn).should("exist");
+      cy.get(page.itemDeleteBtn).should("not.be.visible");
+      cy.get(page.footer).should("exist");
+    });
 
-  it("should add multiple items to the list", () => {
-    cy.get(page.addNewItemInput).type("first todo{enter}");
-    cy.get(page.addNewItemInput).type("second todo{enter}");
-    cy.get(page.addNewItemInput).type("third todo{enter}");
-    cy.get(page.addNewItemInput).type("fourth todo{enter}");
-    cy.get(page.itemsList).should("have.length", 4);
+    it("multiple items are added, sorted and correct count is shown for each", () => {
+      page.addItem(ITEM_ONE);
+
+      cy.get(page.itemsList).should("have.length", 1);
+      cy.get(page.itemsCount).should("have.text", "1 item left");
+      cy.get(page.itemLabel).should("have.text", ITEM_ONE);
+
+      page.addItem(ITEM_TWO);
+
+      cy.get(page.itemsList).should("have.length", 2);
+      cy.get(page.itemsCount).should("have.text", "2 items left");
+      cy.get(page.itemLabel)
+        .eq(1)
+        .should("have.text", ITEM_TWO);
+
+      page.addItem(ITEM_THREE);
+
+      cy.get(page.itemsList).should("have.length", 3);
+      cy.get(page.itemsCount).should("have.text", "3 items left");
+      cy.get(page.itemLabel)
+        .eq(2)
+        .should("have.text", ITEM_THREE);
+    });
+    it("input value is empty when item is added to the list", () => {
+      page.addItem(ITEM_ONE);
+      cy.get(page.addNewItemInput).should("have.attr", "value", "");
+    });
   });
-  it("should delete added item", () => {
-    // add test
+  context("Deleting items", () => {
+    beforeEach(() => {
+      page.addItem(ITEM_ONE);
+      page.addItem(ITEM_TWO);
+      page.addItem(ITEM_THREE);
+      cy.get(page.itemsList).should("have.length", 3);
+    });
+    it("1st item is removed from the list", () => {
+      page.deleteItem(0);
+
+      cy.get(page.itemsList).should("have.length", 2);
+      cy.get(page.itemsCount).should("have.text", "2 items left");
+      cy.get(page.itemLabel)
+        .eq(0)
+        .should("have.text", ITEM_TWO);
+      cy.get(page.itemLabel)
+        .eq(1)
+        .should("have.text", ITEM_THREE);
+    });
+    it("2nd item is removed when empty text is entered", () => {
+      page.editItem(1, "");
+
+      cy.get(page.itemsList).should("have.length", 2);
+      cy.get(page.itemsCount).should("have.text", "2 items left");
+      cy.get(page.itemLabel)
+        .eq(0)
+        .should("have.text", ITEM_ONE);
+      cy.get(page.itemsList)
+        .eq(1)
+        .find(page.itemLabel)
+        .should("have.text", ITEM_THREE);
+    });
+    it("when all items are deleted initial state is shown", () => {
+      cy.get(page.itemDeleteBtn).should("have.length", 3);
+
+      cy.get(page.itemDeleteBtn).each(($el, index) => {
+        cy.wrap($el).click({ force: true });
+        cy.get(page.itemsList).should("have.length", 2 - index);
+      });
+      cy.get(page.itemsList).should("not.exist");
+      cy.get(page.footer).should("not.exist");
+    });
   });
 });
