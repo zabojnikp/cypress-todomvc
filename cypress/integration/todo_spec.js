@@ -21,7 +21,7 @@ describe("TodoMVC", () => {
     });
   });
   context("Adding items", () => {
-    it("item is added with action elements and footer exists", () => {
+    it("item is added with action controls and footer exists", () => {
       page.addItem(ITEM_ONE);
 
       cy.get(page.itemsList).should("have.length", 1);
@@ -32,7 +32,7 @@ describe("TodoMVC", () => {
       cy.get(page.footer).should("exist");
     });
 
-    it("multiple items are added, sorted and correct count is shown for each", () => {
+    it("multiple items are added, sorted and correct count is shown for each item add", () => {
       page.addItem(ITEM_ONE);
 
       cy.get(page.itemsList).should("have.length", 1);
@@ -60,6 +60,50 @@ describe("TodoMVC", () => {
       cy.get(page.addNewItemInput).should("have.attr", "value", "");
     });
   });
+  context("Editing items", () => {
+    beforeEach(() => {
+      page.addItem(ITEM_ONE);
+      page.addItem(ITEM_TWO);
+      page.addItem(ITEM_THREE);
+      cy.get(page.itemsList).should("have.length", 3);
+    });
+    it("User is able to edit items text", () => {
+      page.editItem(page.itemLabel, 0, "edit1 {enter}");
+      page.editItem(page.itemLabel, 1, "edit2 {enter}");
+
+      cy.get(page.itemLabel)
+        .eq(0)
+        .should("have.text", "edit1");
+      cy.get(page.itemLabel)
+        .eq(1)
+        .should("have.text", "edit2");
+      cy.get(page.itemLabel)
+        .eq(2)
+        .should("have.text", ITEM_THREE);
+    });
+
+    it("Item action controls are hidden during edit", () => {
+      page.doubleClickItem(page.itemLabel, 0).as("firstTodo");
+
+      cy.get(page.itemCheckbox).should("have.length", 2);
+      cy.get(page.itemDeleteBtn).should("have.length", 2);
+
+      cy.get("@firstTodo")
+        .find(page.itemCheckbox)
+        .should("not.exist");
+
+      cy.get("@firstTodo")
+        .find(page.itemDeleteBtn)
+        .should("not.exist");
+    });
+
+    it("Edit is saved when clicked outside of edit field", () => {
+      page.doubleClickItem(page.itemLabel, 2).as("secondItem");
+      page.typeAndBlurText(`${ITEM_THREE} edit`);
+
+      cy.get("@secondItem").should("have.text", `${ITEM_THREE} edit`);
+    });
+  });
   context("Deleting items", () => {
     beforeEach(() => {
       page.addItem(ITEM_ONE);
@@ -67,7 +111,7 @@ describe("TodoMVC", () => {
       page.addItem(ITEM_THREE);
       cy.get(page.itemsList).should("have.length", 3);
     });
-    it("1st item is removed from the list", () => {
+    it("1st item is removed from the list with delete button", () => {
       page.deleteItem(0);
 
       cy.get(page.itemsList).should("have.length", 2);
@@ -80,7 +124,7 @@ describe("TodoMVC", () => {
         .should("have.text", ITEM_THREE);
     });
     it("2nd item is removed when empty text is entered", () => {
-      page.editItem(1, "");
+      page.editItem(page.itemLabel, 1, "{enter}");
 
       cy.get(page.itemsList).should("have.length", 2);
       cy.get(page.itemsCount).should("have.text", "2 items left");
@@ -93,8 +137,6 @@ describe("TodoMVC", () => {
         .should("have.text", ITEM_THREE);
     });
     it("when all items are deleted initial state is shown", () => {
-      cy.get(page.itemDeleteBtn).should("have.length", 3);
-
       page.deleteAllItems();
       cy.get(page.itemsList).should("not.exist");
       cy.get(page.footer).should("not.exist");

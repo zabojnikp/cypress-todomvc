@@ -11,26 +11,40 @@ class MainPage {
   itemsCount = ".todo-count";
 
   addItem(itemText) {
-    cy.get(this.addNewItemInput).type(`${itemText}{enter}`);
+    return cy.get(this.addNewItemInput).type(`${itemText}{enter}`);
   }
 
   deleteItem(index) {
-    cy.get(this.itemDeleteBtn)
+    return cy
+      .get(this.itemDeleteBtn)
       .eq(index)
       .click({ force: true });
   }
-  editItem(index, text) {
-    cy.get(this.itemLabel)
+
+  doubleClickItem(item, index) {
+    return cy
+      .get(item)
       .eq(index)
       .dblclick();
-    cy.get(this.itemEdit)
+  }
+  editItem(item, index, text) {
+    this.doubleClickItem(item, index);
+    return cy
+      .get(this.itemEdit)
       .clear()
-      .type(`${text}{enter}`);
+      .type(text);
   }
   deleteAllItems() {
-    cy.get(this.itemDeleteBtn).each($el => {
+    return cy.get(this.itemDeleteBtn).each($el => {
       cy.wrap($el).click({ force: true });
     });
+  }
+  typeAndBlurText(text) {
+    return cy
+      .get(this.itemEdit)
+      .clear()
+      .type(text)
+      .blur();
   }
 }
 
