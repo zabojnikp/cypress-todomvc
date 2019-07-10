@@ -46,6 +46,23 @@ class MainPage {
       .type(text)
       .blur();
   }
+  checkCheckbox(index) {
+    return cy
+      .get(this.itemCheckbox)
+      .eq(index)
+      .check();
+  }
+  uncheckCheckbox(index) {
+    return cy
+      .get(this.itemCheckbox)
+      .eq(index)
+      .uncheck();
+  }
+  checkAll() {
+    cy.get(this.itemCheckbox).each($el => {
+      cy.wrap($el).check();
+    });
+  }
 }
 
 export default MainPage;

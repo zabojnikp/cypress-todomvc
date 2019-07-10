@@ -11,7 +11,7 @@ describe("TodoMVC", () => {
   beforeEach(() => {
     cy.visit("/");
   });
-  context("Initial state", () => {
+  context.skip("Initial state", () => {
     it("page is set to inital state", () => {
       cy.get(page.pageTitle).should("have.text", "todos");
       cy.get(page.addNewItemInput).should("be.visible");
@@ -20,15 +20,16 @@ describe("TodoMVC", () => {
       cy.get(page.footer).should("not.exist");
     });
   });
-  context("Adding items", () => {
+  context.skip("Adding items", () => {
     it("item is added with action controls and footer exists", () => {
       page.addItem(ITEM_ONE);
 
       cy.get(page.itemsList).should("have.length", 1);
       cy.get(page.itemCheckbox).should("not.be.selected");
       cy.get(page.itemLabel).should("have.text", ITEM_ONE);
-      cy.get(page.itemDeleteBtn).should("exist");
-      cy.get(page.itemDeleteBtn).should("not.be.visible");
+      cy.get(page.itemDeleteBtn)
+        .should("exist")
+        .should("not.be.visible");
       cy.get(page.footer).should("exist");
     });
 
@@ -60,7 +61,7 @@ describe("TodoMVC", () => {
       cy.get(page.addNewItemInput).should("have.attr", "value", "");
     });
   });
-  context("Editing items", () => {
+  context.skip("Editing items", () => {
     beforeEach(() => {
       page.addItem(ITEM_ONE);
       page.addItem(ITEM_TWO);
@@ -104,7 +105,7 @@ describe("TodoMVC", () => {
       cy.get("@secondItem").should("have.text", `${ITEM_THREE} edit`);
     });
   });
-  context("Deleting items", () => {
+  context.skip("Deleting items", () => {
     beforeEach(() => {
       page.addItem(ITEM_ONE);
       page.addItem(ITEM_TWO);
@@ -141,5 +142,62 @@ describe("TodoMVC", () => {
       cy.get(page.itemsList).should("not.exist");
       cy.get(page.footer).should("not.exist");
     });
+  });
+  context("Completed items", () => {
+    beforeEach(() => {
+      page.addItem(ITEM_ONE);
+      page.addItem(ITEM_TWO);
+      page.addItem(ITEM_THREE);
+      cy.get(page.itemsList).should("have.length", 3);
+    });
+    it("checked item should get completed class assigned and counter updated", () => {
+      page.checkCheckbox(0);
+
+      cy.get(page.itemsList)
+        .eq(0)
+        .find(page.itemCheckbox)
+        .should("be.checked");
+      cy.get(page.itemsList)
+        .eq(0)
+        .should("have.class", "completed");
+
+      cy.get(page.itemsList)
+        .eq(1)
+        .find(page.itemCheckbox)
+        .should("not.be.checked");
+      cy.get(page.itemsList)
+        .eq(1)
+        .should("not.have.class", "completed");
+
+      cy.get(page.itemsCount).should("have.text", "2 items left");
+    });
+    it("checked item label should have correct css styling", () => {
+      page.checkCheckbox(1);
+      cy.get(page.itemLabel)
+        .eq(1)
+        .should("have.css", "text-decoration", "line-through solid rgb(217, 217, 217)");
+    });
+    it("all check items should have same action controls and counter updated", () => {
+      page.checkAll();
+
+      cy.get(page.itemsList).each($el => {
+        cy.wrap($el).should("have.class", "completed");
+        cy.wrap($el)
+          .find(page.itemCheckbox)
+          .should("be.checked");
+        cy.wrap($el)
+          .find(page.itemLabel)
+          .should("be.visible");
+        cy.wrap($el)
+          .find(page.itemDeleteBtn)
+          .should("exist")
+          .should("not.be.visible");
+      });
+      cy.get(page.itemsCount).should("have.text", "No items left");
+    });
+    it.skip("user can un-check completed task", () => {});
+    it.skip("user can delete completed task", () => {});
+    it.skip("user can clear completed task", () => {});
+    it.skip("user can mark all tasks as completed at once", () => {});
   });
 });
