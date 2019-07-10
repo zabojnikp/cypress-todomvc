@@ -27,6 +27,11 @@ class MainPage {
       .clear()
       .type(`${text}{enter}`);
   }
+  deleteAllItems() {
+    cy.get(this.itemDeleteBtn).each($el => {
+      cy.wrap($el).click({ force: true });
+    });
+  }
 }
 
 export default MainPage;

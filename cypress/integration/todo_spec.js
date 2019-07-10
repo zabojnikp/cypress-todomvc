@@ -95,10 +95,7 @@ describe("TodoMVC", () => {
     it("when all items are deleted initial state is shown", () => {
       cy.get(page.itemDeleteBtn).should("have.length", 3);
 
-      cy.get(page.itemDeleteBtn).each(($el, index) => {
-        cy.wrap($el).click({ force: true });
-        cy.get(page.itemsList).should("have.length", 2 - index);
-      });
+      page.deleteAllItems();
       cy.get(page.itemsList).should("not.exist");
       cy.get(page.footer).should("not.exist");
     });
