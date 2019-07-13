@@ -9,6 +9,8 @@ class MainPage {
   itemEdit = ".edit";
   footer = ".footer";
   itemsCount = ".todo-count";
+  clearCompletedBtn = ".clear-completed";
+  selectAllBtn = "[data-cy='toggle-all-label']";
 
   addItem(itemText) {
     return cy.get(this.addNewItemInput).type(`${itemText}{enter}`);
@@ -46,15 +48,13 @@ class MainPage {
       .type(text)
       .blur();
   }
-  checkCheckbox(index) {
-    return cy
-      .get(this.itemCheckbox)
+  checkItem(index) {
+    cy.get(this.itemCheckbox)
       .eq(index)
       .check();
   }
-  uncheckCheckbox(index) {
-    return cy
-      .get(this.itemCheckbox)
+  uncheckItem(index) {
+    cy.get(this.itemCheckbox)
       .eq(index)
       .uncheck();
   }
@@ -62,6 +62,12 @@ class MainPage {
     cy.get(this.itemCheckbox).each($el => {
       cy.wrap($el).check();
     });
+  }
+  clearAllCompleted() {
+    cy.get(this.clearCompletedBtn).click();
+  }
+  selectAll() {
+    cy.get(this.selectAllBtn).click({ force: true });
   }
 }
 
