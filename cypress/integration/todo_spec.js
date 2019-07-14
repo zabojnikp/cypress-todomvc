@@ -186,14 +186,13 @@ describe("ToDo - MVC", () => {
       });
     });
     it("should update footer counter when completed", () => {
-      cy.get(page.itemCheckbox).each(($el, index, $list) => {
-        if (index > 1) {
-          cy.get(page.itemsCount).should("have.text", "1 item left");
-        } else {
-          cy.get(page.itemsCount).should("have.text", `${$list.length - index} items left`);
-        }
-        cy.wrap($el).check();
-      });
+      page.checkItem(2);
+      cy.get(page.itemsCount).should("have.text", "2 items left");
+
+      page.checkItem(1);
+      cy.get(page.itemsCount).should("have.text", "1 item left");
+
+      page.checkItem(0);
       cy.get(page.itemsCount).should("have.text", "No items left");
     });
     it("should un-check completed task", () => {
@@ -254,9 +253,10 @@ describe("ToDo - MVC", () => {
       cy.get(page.itemsList).should("have.length", 3);
       page.selectAll();
     });
-    it("should allo mark all tasks as completed", () => {
+    it("should allow mark all tasks as completed", () => {
       cy.get(page.itemsList).should("have.length", 3);
       cy.get(page.itemsCount).should("have.text", "No items left");
+
       cy.get(page.itemsList).each($el => {
         cy.wrap($el).should("have.class", "completed");
         cy.wrap($el)
@@ -269,6 +269,7 @@ describe("ToDo - MVC", () => {
 
       cy.get(page.itemsList).should("have.length", 3);
       cy.get(page.itemsCount).should("have.text", "3 items left");
+
       cy.get(page.itemsList).each($el => {
         cy.wrap($el).should("not.have.class", "completed");
         cy.wrap($el)
