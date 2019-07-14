@@ -1,7 +1,6 @@
 class MainPage {
-  // locators
   pageTitle = "[data-cy='title']";
-  addNewItemInput = ".new-todo";
+  newItemInput = ".new-todo";
   itemsList = ".todo-list li";
   itemLabel = "[data-cy='todo-item-label']";
   itemCheckbox = ".toggle";
@@ -11,14 +10,14 @@ class MainPage {
   itemsCount = ".todo-count";
   clearCompletedBtn = ".clear-completed";
   selectAllBtn = "[data-cy='toggle-all-label']";
+  filters = ".filters > li";
 
   addItem(itemText) {
-    return cy.get(this.addNewItemInput).type(`${itemText}{enter}`);
+    cy.get(this.newItemInput).type(`${itemText}{enter}`);
   }
 
   deleteItem(index) {
-    return cy
-      .get(this.itemDeleteBtn)
+    cy.get(this.itemDeleteBtn)
       .eq(index)
       .click({ force: true });
   }
@@ -31,19 +30,17 @@ class MainPage {
   }
   editItem(item, index, text) {
     this.doubleClickItem(item, index);
-    return cy
-      .get(this.itemEdit)
+    cy.get(this.itemEdit)
       .clear()
       .type(text);
   }
   deleteAllItems() {
-    return cy.get(this.itemDeleteBtn).each($el => {
+    cy.get(this.itemDeleteBtn).each($el => {
       cy.wrap($el).click({ force: true });
     });
   }
   typeAndBlurText(text) {
-    return cy
-      .get(this.itemEdit)
+    cy.get(this.itemEdit)
       .clear()
       .type(text)
       .blur();
@@ -63,11 +60,16 @@ class MainPage {
       cy.wrap($el).check();
     });
   }
-  clearAllCompleted() {
+  clearCompleted() {
     cy.get(this.clearCompletedBtn).click();
   }
   selectAll() {
     cy.get(this.selectAllBtn).click({ force: true });
+  }
+  selectFilter(filterName) {
+    cy.get(this.filters)
+      .contains(filterName)
+      .click();
   }
 }
 

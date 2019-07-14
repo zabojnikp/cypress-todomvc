@@ -9,20 +9,22 @@ const ITEMS = {
   THIRD_TODO: "third todo"
 };
 
-describe("Todo - create, filter", () => {
+describe("ToDo - MVC", () => {
   beforeEach(() => {
     cy.visit("/");
   });
-  context("Adding items", () => {
+  context("Initial state", () => {
     it("should set page to inital state", () => {
       cy.get(page.pageTitle).should("have.text", "todos");
-      cy.get(page.addNewItemInput).should("be.visible");
+      cy.get(page.newItemInput).should("be.visible");
       cy.focused().should("have.attr", "placeholder", "What needs to be done?");
       cy.get(page.selectAllBtn).should("not.exist");
       cy.get(page.itemsList).should("not.exist");
       cy.get(page.footer).should("not.exist");
     });
-    it("should add item with action controls and footer", () => {
+  });
+  context("Adding items", () => {
+    it("should add 1 item with action controls and footer", () => {
       page.addItem(ITEMS.FIRST_TODO);
 
       cy.get(page.itemsList).should("have.length", 1);
@@ -34,12 +36,11 @@ describe("Todo - create, filter", () => {
       cy.get(page.footer).should("exist");
     });
 
-    it("should add multiple items, sorted them and show correct count for each item", () => {
+    it("should add multiple items, sort them and show correct items count for each item add", () => {
       page.addItem(ITEMS.FIRST_TODO);
 
       cy.get(page.itemsList).should("have.length", 1);
       cy.get(page.itemsCount).should("have.text", "1 item left");
-      cy.get(page.itemLabel).should("have.text", ITEMS.FIRST_TODO);
 
       page.addItem(ITEMS.SECOND_TODO);
 
@@ -57,22 +58,20 @@ describe("Todo - create, filter", () => {
         .eq(2)
         .should("have.text", ITEMS.THIRD_TODO);
     });
-    it("should show empty value when item is added to the list", () => {
+    it("should show empty value in input field when an item is added to the list", () => {
       page.addItem(ITEMS.FIRST_TODO);
-      cy.get(page.addNewItemInput).should("have.attr", "value", "");
+
+      cy.get(page.newItemInput).should("have.attr", "value", "");
     });
   });
-});
-describe("Todo - edit, delete, complete, clear, mark ", () => {
-  beforeEach(() => {
-    cy.visit("/");
-    page.addItem(ITEMS.FIRST_TODO);
-    page.addItem(ITEMS.SECOND_TODO);
-    page.addItem(ITEMS.THIRD_TODO);
-    cy.get(page.itemsList).should("have.length", 3);
-  });
   context("Editing items", () => {
-    it("should edit items text", () => {
+    beforeEach(() => {
+      page.addItem(ITEMS.FIRST_TODO);
+      page.addItem(ITEMS.SECOND_TODO);
+      page.addItem(ITEMS.THIRD_TODO);
+      cy.get(page.itemsList).should("have.length", 3);
+    });
+    it("should edit todo item text", () => {
       page.editItem(page.itemLabel, 0, "edit1 {enter}");
       page.editItem(page.itemLabel, 1, "edit2 {enter}");
 
@@ -103,14 +102,20 @@ describe("Todo - edit, delete, complete, clear, mark ", () => {
     });
 
     it("should save edit when clicked outside of editted text", () => {
-      page.doubleClickItem(page.itemLabel, 2).as("secondItem");
+      page.doubleClickItem(page.itemLabel, 2).as("thirdItem");
       page.typeAndBlurText(`${ITEMS.THIRD_TODO} edit`);
 
-      cy.get("@secondItem").should("have.text", `${ITEMS.THIRD_TODO} edit`);
+      cy.get("@thirdItem").should("have.text", `${ITEMS.THIRD_TODO} edit`);
     });
   });
   context("Deleting items", () => {
-    it("should remove 1st item using with delete button", () => {
+    beforeEach(() => {
+      page.addItem(ITEMS.FIRST_TODO);
+      page.addItem(ITEMS.SECOND_TODO);
+      page.addItem(ITEMS.THIRD_TODO);
+      cy.get(page.itemsList).should("have.length", 3);
+    });
+    it("should remove item using delete button", () => {
       page.deleteItem(0);
 
       cy.get(page.itemsList).should("have.length", 2);
@@ -122,7 +127,7 @@ describe("Todo - edit, delete, complete, clear, mark ", () => {
         .eq(1)
         .should("have.text", ITEMS.THIRD_TODO);
     });
-    it("should remove 2nd item when empty text is entered", () => {
+    it("should remove item when empty text is entered", () => {
       page.editItem(page.itemLabel, 1, "{enter}");
 
       cy.get(page.itemsList).should("have.length", 2);
@@ -138,15 +143,21 @@ describe("Todo - edit, delete, complete, clear, mark ", () => {
     it("should delete all items and show initial state", () => {
       page.deleteAllItems();
 
+      cy.get(page.newItemInput).should("be.visible");
       cy.get(page.itemsList).should("not.exist");
       cy.get(page.footer).should("not.exist");
     });
   });
   context("Completed items", () => {
+    beforeEach(() => {
+      page.addItem(ITEMS.FIRST_TODO);
+      page.addItem(ITEMS.SECOND_TODO);
+      page.addItem(ITEMS.THIRD_TODO);
+      cy.get(page.itemsList).should("have.length", 3);
+    });
     it("should verify checked items have correct css styling", () => {
       cy.get(page.itemsList).each(($el, index) => {
         page.checkItem(index);
-
         cy.wrap($el)
           .find(page.itemLabel)
           .should("have.css", "text-decoration", "line-through solid rgb(217, 217, 217)");
@@ -185,7 +196,7 @@ describe("Todo - edit, delete, complete, clear, mark ", () => {
       });
       cy.get(page.itemsCount).should("have.text", "No items left");
     });
-    it("should uncheck completed task", () => {
+    it("should un-check completed task", () => {
       page.checkAll();
 
       cy.get(page.itemsList).each(($el, index) => {
@@ -200,15 +211,21 @@ describe("Todo - edit, delete, complete, clear, mark ", () => {
     });
   });
   context("Clear completed", () => {
+    beforeEach(() => {
+      page.addItem(ITEMS.FIRST_TODO);
+      page.addItem(ITEMS.SECOND_TODO);
+      page.addItem(ITEMS.THIRD_TODO);
+      cy.get(page.itemsList).should("have.length", 3);
+    });
     it("should display correct text", () => {
       page.checkAll();
       cy.get(page.clearCompletedBtn).should("have.text", "Clear completed");
     });
 
-    it("should be visible only when there are items checked", () => {
+    it("should become visible when item is checked", () => {
       cy.get(page.clearCompletedBtn).should("not.exist");
 
-      page.checkAll();
+      page.checkItem(0);
 
       cy.get(page.clearCompletedBtn)
         .should("exist")
@@ -216,25 +233,28 @@ describe("Todo - edit, delete, complete, clear, mark ", () => {
     });
     it("should clear completed tasks", () => {
       const randomItem = Math.floor(Math.random() * 3);
+
       page.checkItem(randomItem);
-      page.clearAllCompleted();
+      page.clearCompleted();
 
       cy.get(page.itemsList).should("have.length", 2);
       cy.get(page.itemsCount).should("have.text", "2 items left");
 
       page.checkAll();
-      page.clearAllCompleted();
+      page.clearCompleted();
 
       cy.get(page.itemsList).should("not.exist");
-      cy.get(page.footer).should("not.exist");
     });
   });
   context("Mark completed", () => {
     beforeEach(() => {
+      page.addItem(ITEMS.FIRST_TODO);
+      page.addItem(ITEMS.SECOND_TODO);
+      page.addItem(ITEMS.THIRD_TODO);
+      cy.get(page.itemsList).should("have.length", 3);
       page.selectAll();
     });
     it("should mark all tasks as completed", () => {
-      cy.get(page.clearCompletedBtn).should("exist");
       cy.get(page.itemsList).should("have.length", 3);
       cy.get(page.itemsCount).should("have.text", "No items left");
       cy.get(page.itemsList).each($el => {
@@ -247,7 +267,6 @@ describe("Todo - edit, delete, complete, clear, mark ", () => {
     it("should un-mark all tasks as completed", () => {
       page.selectAll();
 
-      cy.get(page.clearCompletedBtn).should("not.exist");
       cy.get(page.itemsList).should("have.length", 3);
       cy.get(page.itemsCount).should("have.text", "3 items left");
       cy.get(page.itemsList).each($el => {
@@ -257,7 +276,50 @@ describe("Todo - edit, delete, complete, clear, mark ", () => {
           .should("not.be.checked");
       });
     });
-    it("user can delete completed task by button", () => {});
-    it("user can delete completed task by doubleclick", () => {});
+  });
+  context("Filtering items", () => {
+    beforeEach(() => {
+      page.addItem(ITEMS.FIRST_TODO);
+      page.addItem(ITEMS.SECOND_TODO);
+      page.addItem(ITEMS.THIRD_TODO);
+      cy.get(page.itemsList).should("have.length", 3);
+      page.checkItem(1);
+    });
+    it("should display all items by default", () => {
+      cy.get(page.filters)
+        .contains("All")
+        .should("have.class", "selected");
+
+      page.selectFilter("Completed");
+      page.selectFilter("All");
+
+      cy.get(page.filters)
+        .contains("All")
+        .should("have.class", "selected");
+
+      cy.get(page.itemsList).should("have.length", 3);
+    });
+    it("should display all active items", () => {
+      page.selectFilter("Active");
+
+      cy.get(page.filters)
+        .contains("Active")
+        .should("have.class", "selected");
+      cy.get(page.itemsList).should("have.length", 2);
+    });
+    it("should display all completed items", () => {
+      page.selectFilter("Completed");
+
+      cy.get(page.filters)
+        .contains("Completed")
+        .should("have.class", "selected");
+      cy.get(page.itemsList).should("have.length", 1);
+    });
+    it("should higlight applied filter", () => {
+      cy.get(page.filters).each($el => {
+        cy.wrap($el).click();
+        cy.wrap($el).should("have.css", "border-color", "rgb(119, 119, 119)");
+      });
+    });
   });
 });
