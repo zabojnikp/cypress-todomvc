@@ -102,10 +102,10 @@ describe("ToDo - MVC", () => {
     });
 
     it("should save edit when clicked outside of the edited text", () => {
-      page.doubleClickItem(page.itemLabel, 2).as("thirdItem");
+      page.doubleClickItem(page.itemLabel, 2).as("thirdTodo");
       page.typeAndBlur(`${ITEMS.THIRD_TODO} edit`);
 
-      cy.get("@thirdItem").should("have.text", `${ITEMS.THIRD_TODO} edit`);
+      cy.get("@thirdTodo").should("have.text", `${ITEMS.THIRD_TODO} edit`);
     });
   });
   context("Deleting items", () => {
