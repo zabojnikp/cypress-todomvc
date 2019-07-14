@@ -14,11 +14,11 @@ describe("ToDo - MVC", () => {
     cy.visit("/");
   });
   context("Initial state", () => {
-    it("should set page to inital state", () => {
+    it("should set the page to initial state", () => {
       cy.get(page.pageTitle).should("have.text", "todos");
       cy.get(page.newItemInput).should("be.visible");
       cy.focused().should("have.attr", "placeholder", "What needs to be done?");
-      cy.get(page.selectAllBtn).should("not.exist");
+      cy.get(page.toggleAllBtn).should("not.exist");
       cy.get(page.itemsList).should("not.exist");
       cy.get(page.footer).should("not.exist");
     });
@@ -36,7 +36,7 @@ describe("ToDo - MVC", () => {
       cy.get(page.footer).should("exist");
     });
 
-    it("should add multiple items, sort them and show correct items count for each item add", () => {
+    it("should add multiple items, sort them and show correct items count", () => {
       page.addItem(ITEMS.FIRST_TODO);
 
       cy.get(page.itemsList).should("have.length", 1);
@@ -58,7 +58,7 @@ describe("ToDo - MVC", () => {
         .eq(2)
         .should("have.text", ITEMS.THIRD_TODO);
     });
-    it("should show empty value in input field when an item is added to the list", () => {
+    it("should show empty value in the input field when an item is added to the list", () => {
       page.addItem(ITEMS.FIRST_TODO);
 
       cy.get(page.newItemInput).should("have.attr", "value", "");
@@ -86,7 +86,7 @@ describe("ToDo - MVC", () => {
         .should("have.text", ITEMS.THIRD_TODO);
     });
 
-    it("should hide item action controls during edit", () => {
+    it("should hide item action controls during the edit", () => {
       page.doubleClickItem(page.itemLabel, 0).as("firstTodo");
 
       cy.get(page.itemCheckbox).should("have.length", 2);
@@ -101,9 +101,9 @@ describe("ToDo - MVC", () => {
         .should("not.exist");
     });
 
-    it("should save edit when clicked outside of editted text", () => {
+    it("should save edit when clicked outside of the edited text", () => {
       page.doubleClickItem(page.itemLabel, 2).as("thirdItem");
-      page.typeAndBlurText(`${ITEMS.THIRD_TODO} edit`);
+      page.typeAndBlur(`${ITEMS.THIRD_TODO} edit`);
 
       cy.get("@thirdItem").should("have.text", `${ITEMS.THIRD_TODO} edit`);
     });
@@ -115,7 +115,7 @@ describe("ToDo - MVC", () => {
       page.addItem(ITEMS.THIRD_TODO);
       cy.get(page.itemsList).should("have.length", 3);
     });
-    it("should remove item using delete button", () => {
+    it("should remove an item using the delete button", () => {
       page.deleteItem(0);
 
       cy.get(page.itemsList).should("have.length", 2);
@@ -127,7 +127,7 @@ describe("ToDo - MVC", () => {
         .eq(1)
         .should("have.text", ITEMS.THIRD_TODO);
     });
-    it("should remove item when empty text is entered", () => {
+    it("should remove an item when empty text is entered", () => {
       page.editItem(page.itemLabel, 1, "{enter}");
 
       cy.get(page.itemsList).should("have.length", 2);
@@ -140,7 +140,7 @@ describe("ToDo - MVC", () => {
         .find(page.itemLabel)
         .should("have.text", ITEMS.THIRD_TODO);
     });
-    it("should delete all items and show initial state", () => {
+    it("should delete all items and show the initial state", () => {
       page.deleteAllItems();
 
       cy.get(page.newItemInput).should("be.visible");
@@ -148,14 +148,14 @@ describe("ToDo - MVC", () => {
       cy.get(page.footer).should("not.exist");
     });
   });
-  context("Completed items", () => {
+  context("Completing items", () => {
     beforeEach(() => {
       page.addItem(ITEMS.FIRST_TODO);
       page.addItem(ITEMS.SECOND_TODO);
       page.addItem(ITEMS.THIRD_TODO);
       cy.get(page.itemsList).should("have.length", 3);
     });
-    it("should verify checked items have correct css styling", () => {
+    it("should verify checked items have correct CSS styling", () => {
       cy.get(page.itemsList).each(($el, index) => {
         page.checkItem(index);
         cy.wrap($el)
@@ -254,7 +254,7 @@ describe("ToDo - MVC", () => {
       cy.get(page.itemsList).should("have.length", 3);
       page.selectAll();
     });
-    it("should mark all tasks as completed", () => {
+    it("should allo mark all tasks as completed", () => {
       cy.get(page.itemsList).should("have.length", 3);
       cy.get(page.itemsCount).should("have.text", "No items left");
       cy.get(page.itemsList).each($el => {
@@ -264,7 +264,7 @@ describe("ToDo - MVC", () => {
           .should("be.checked");
       });
     });
-    it("should un-mark all tasks as completed", () => {
+    it("should allow un-mark all tasks as completed", () => {
       page.selectAll();
 
       cy.get(page.itemsList).should("have.length", 3);
@@ -315,7 +315,7 @@ describe("ToDo - MVC", () => {
         .should("have.class", "selected");
       cy.get(page.itemsList).should("have.length", 1);
     });
-    it("should higlight applied filter", () => {
+    it("should highlight applied filter", () => {
       cy.get(page.filters).each($el => {
         cy.wrap($el).click();
         cy.wrap($el).should("have.css", "border-color", "rgb(119, 119, 119)");

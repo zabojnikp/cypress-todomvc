@@ -9,15 +9,16 @@ class MainPage {
   footer = ".footer";
   itemsCount = ".todo-count";
   clearCompletedBtn = ".clear-completed";
-  selectAllBtn = "[data-cy='toggle-all-label']";
+  toggleAllBtn = "[data-cy='toggle-all-label']";
   filters = ".filters > li";
 
   addItem(itemText) {
-    cy.get(this.newItemInput).type(`${itemText}{enter}`);
+    return cy.get(this.newItemInput).type(`${itemText}{enter}`);
   }
 
   deleteItem(index) {
-    cy.get(this.itemDeleteBtn)
+    return cy
+      .get(this.itemDeleteBtn)
       .eq(index)
       .click({ force: true });
   }
@@ -30,44 +31,49 @@ class MainPage {
   }
   editItem(item, index, text) {
     this.doubleClickItem(item, index);
-    cy.get(this.itemEdit)
+    return cy
+      .get(this.itemEdit)
       .clear()
       .type(text);
   }
   deleteAllItems() {
-    cy.get(this.itemDeleteBtn).each($el => {
+    return cy.get(this.itemDeleteBtn).each($el => {
       cy.wrap($el).click({ force: true });
     });
   }
-  typeAndBlurText(text) {
-    cy.get(this.itemEdit)
+  typeAndBlur(text) {
+    return cy
+      .get(this.itemEdit)
       .clear()
       .type(text)
       .blur();
   }
   checkItem(index) {
-    cy.get(this.itemCheckbox)
+    return cy
+      .get(this.itemCheckbox)
       .eq(index)
       .check();
   }
   uncheckItem(index) {
-    cy.get(this.itemCheckbox)
+    return cy
+      .get(this.itemCheckbox)
       .eq(index)
       .uncheck();
   }
   checkAll() {
-    cy.get(this.itemCheckbox).each($el => {
+    return cy.get(this.itemCheckbox).each($el => {
       cy.wrap($el).check();
     });
   }
   clearCompleted() {
-    cy.get(this.clearCompletedBtn).click();
+    return cy.get(this.clearCompletedBtn).click();
   }
   selectAll() {
-    cy.get(this.selectAllBtn).click({ force: true });
+    return cy.get(this.toggleAllBtn).click({ force: true });
   }
   selectFilter(filterName) {
-    cy.get(this.filters)
+    return cy
+      .get(this.filters)
       .contains(filterName)
       .click();
   }
